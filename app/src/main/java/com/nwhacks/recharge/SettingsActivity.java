@@ -10,7 +10,8 @@ import android.widget.Button;
 public class SettingsActivity extends AppCompatActivity {
 
     // buttons declaring
-    Button settingsBackBtn;
+    private Button settingsBackBtn;
+    private Button accountSettingsBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // create objects
         settingsBackBtn = findViewById(R.id.settingsBackBtn);
+        accountSettingsBtn = findViewById(R.id.accountSettingsBtn);
 
         // button click listener
         settingsBackBtn.setOnClickListener(new View.OnClickListener() {
@@ -30,6 +32,15 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent backIntent = new Intent(getApplicationContext(), MapsActivity.class);
 
                 startActivity(backIntent);
+            }
+        });
+
+        accountSettingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent accountSettingsIntent = new Intent(getApplicationContext(), LoginActivity.class);
+
+                startActivity(accountSettingsIntent);
             }
         });
     }
