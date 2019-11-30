@@ -34,7 +34,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, Runnable {
 
     private GoogleMap mMap;
 
@@ -45,11 +45,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double longitude, latitude;
     double endLong, endLat;
     String isCurrentLoc = "Location: Default";
-    Marker m1;
 
     int PERMISSION_ID = 44;
     Location curLoc;
     FusedLocationProviderClient flpClient;
+
+    Thread thread = new Thread(this);
+    Marker m1 = mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)));
+
 
 
     @Override
@@ -86,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         flpClient = LocationServices.getFusedLocationProviderClient(this);
         getLastLocation();
+        thread.run();
     }
 
 
@@ -238,5 +242,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void plotRoute(){
         
+    }
+
+    public void run() {
+
+        while (true) {
+            try {
+                Thread.sleep(1000);
+                refresh(m1);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }
