@@ -1,37 +1,36 @@
 package com.nwhacks.recharge;
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 public class UsersActivity extends AppCompatActivity {
 
     // button declaring
-    private FloatingActionButton fab;
+    private Button backBtn;
 
-    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_users);
 
         // sets header title of activity
         setTitle("Users");
 
         // create objects
-        fab = findViewById(R.id.fab);
+        backBtn = findViewById(R.id.backBtn);
 
-        // hide unused
-        fab.setVisibility(View.GONE);
+        // button click listener
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent backIntent = new Intent(getApplicationContext(), MapsActivity.class);
 
+                startActivity(backIntent);
+            }
+        });
     }
 }

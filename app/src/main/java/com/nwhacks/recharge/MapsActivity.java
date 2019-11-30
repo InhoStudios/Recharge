@@ -34,13 +34,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         settingsBtn = findViewById(R.id.usersBtn);
 
         // button click listener
-
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent settingsIntent = new Intent(getApplicationContext(), UsersActivity.class);
+                Intent usersIntent = new Intent(getApplicationContext(), UsersActivity.class);
 
-                startActivity(settingsIntent);
+                startActivity(usersIntent);
             }
         });
 
