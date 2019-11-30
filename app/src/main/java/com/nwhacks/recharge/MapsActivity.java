@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,7 +35,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, Runnable {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
 
@@ -50,8 +51,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location curLoc;
     FusedLocationProviderClient flpClient;
 
-    Thread thread = new Thread(this);
-    Marker m1 = mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)));
+    Thread thread = new Thread();
+    Marker m1;
+
+    private BroadcastReceiver updateLoc;
 
 
 
@@ -89,7 +92,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         flpClient = LocationServices.getFusedLocationProviderClient(this);
         getLastLocation();
-        thread.run();
     }
 
 
@@ -242,20 +244,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void plotRoute(){
         
-    }
-
-    public void run() {
-
-        while (true) {
-            try {
-                Thread.sleep(1000);
-                refresh(m1);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-        }
-
     }
 }
