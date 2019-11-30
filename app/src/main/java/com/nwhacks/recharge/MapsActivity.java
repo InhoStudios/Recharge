@@ -19,6 +19,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
 
     // button declaring
+    private Button usersBtn;
     private Button settingsBtn;
 
     @Override
@@ -31,14 +32,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         // create objects
+        usersBtn = findViewById(R.id.usersBtn);
         settingsBtn = findViewById(R.id.settingsBtn);
 
         // button click listener
+        usersBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent usersIntent = new Intent(getApplicationContext(), UsersActivity.class);
+
+                startActivity(usersIntent);
+            }
+        });
 
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent settingsIntent = new Intent(getApplicationContext(),SettingsActivity.class);
+                Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
 
                 startActivity(settingsIntent);
             }

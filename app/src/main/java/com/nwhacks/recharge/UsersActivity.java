@@ -7,24 +7,24 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class SettingsActivity extends AppCompatActivity {
+public class UsersActivity extends AppCompatActivity {
 
-    // buttons declaring
-    Button settingsBackBtn;
+    // button declaring
+    private Button usersBackBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_users);
 
         // sets header title of activity
-        setTitle("Settings");
+        setTitle("Users");
 
         // create objects
-        settingsBackBtn = findViewById(R.id.settingsBackBtn);
+        usersBackBtn = findViewById(R.id.usersBackBtn);
 
         // button click listener
-        settingsBackBtn.setOnClickListener(new View.OnClickListener() {
+        usersBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent backIntent = new Intent(getApplicationContext(), MapsActivity.class);
