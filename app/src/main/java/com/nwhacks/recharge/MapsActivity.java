@@ -1,17 +1,27 @@
 package com.nwhacks.recharge;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
@@ -33,7 +44,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     float zoomLvl = 16f;
     double longitude, latitude;
     double endLong, endLat;
+    String isCurrentLoc = "Location: Default";
 
+    int PERMISSION_ID = 44;
     Location curLoc;
     FusedLocationProviderClient flpClient;
 
@@ -71,6 +84,104 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         flpClient = LocationServices.getFusedLocationProviderClient(this);
+        getLastLocation();
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void getLastLocation(){
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                flpClient.getLastLocation().addOnCompleteListener(
+                        new OnCompleteListener<Location>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Location> task) {
+                                Location location = task.getResult();
+                                requestNewLocationData();
+                                if (location == null) {
+                                    isCurrentLoc = "Location: Default";
+                                } else {
+                                    latitude = location.getLatitude();
+                                    longitude = location.getLongitude();
+                                    isCurrentLoc = "Location: Current";
+                                }
+                            }
+                        }
+                );
+            } else {
+                Toast.makeText(this, "Turn on location", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        } else {
+            requestPermissions();
+        }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData(){
+
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+
+        flpClient = LocationServices.getFusedLocationProviderClient(this);
+        flpClient.requestLocationUpdates(
+                mLocationRequest, mLocationCallback,
+                Looper.myLooper()
+        );
+
+    }
+
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            curLoc = locationResult.getLastLocation();
+        }
+    };
+
+    private boolean checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_ID
+        );
+    }
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            }
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (checkPermissions()) {
+            getLastLocation();
+        }
 
     }
 
@@ -101,28 +212,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         String dist = "Distance: " + (int) results[0] + "m";
 
-        Marker m1 = mMap.addMarker(new MarkerOptions().position(sydney).title("Marker"));
+        Marker m1 = mMap.addMarker(new MarkerOptions().position(sydney).title(isCurrentLoc));
         Marker m2 = mMap.addMarker(new MarkerOptions().position(sydney2).title(dist));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
 
         mMap.setOnMarkerClickListener(this);
     }
 
-    private void fetchLastLocation() {
-
-        Task<Location> task = flpClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            public void onSuccess(Location location){
-                if(location != null){
-                    curLoc = location;
-                }
-            }
-        });
-    }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        fetchLastLocation();
+        refresh(marker);
         return false;
+    }
+
+    public void refresh(Marker marker) {
+        getLastLocation();
+        LatLng sydney = new LatLng(latitude, longitude);
+        marker.setPosition(sydney);
+        marker.setTitle(isCurrentLoc);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
     }
 }
