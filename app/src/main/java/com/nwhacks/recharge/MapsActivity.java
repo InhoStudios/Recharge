@@ -31,14 +31,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         // create objects
-        settingsBtn = findViewById(R.id.settingsBtn);
+        settingsBtn = findViewById(R.id.usersBtn);
 
         // button click listener
 
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent settingsIntent = new Intent(getApplicationContext(),SettingsActivity.class);
+                Intent settingsIntent = new Intent(getApplicationContext(), UsersActivity.class);
 
                 startActivity(settingsIntent);
             }

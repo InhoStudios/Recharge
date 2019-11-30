@@ -1,5 +1,6 @@
 package com.nwhacks.recharge;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -10,8 +11,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
 
-public class SettingsActivity extends AppCompatActivity {
+public class UsersActivity extends AppCompatActivity {
 
+    // button declaring
+    private FloatingActionButton fab;
+
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,13 +24,14 @@ public class SettingsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // sets header title of activity
+        setTitle("Users");
+
+        // create objects
+        fab = findViewById(R.id.fab);
+
+        // hide unused
+        fab.setVisibility(View.GONE);
+
     }
 }
