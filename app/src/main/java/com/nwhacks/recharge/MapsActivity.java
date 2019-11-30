@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
@@ -92,6 +93,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         flpClient = LocationServices.getFusedLocationProviderClient(this);
         getLastLocation();
+        System.out.println("*************** this is the device name!!" + getDeviceName());
+
     }
 
 
@@ -244,5 +247,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void plotRoute(){
         
+    }
+
+    public String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+
+    private String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char first = s.charAt(0);
+        if (Character.isUpperCase(first)) {
+            return s;
+        } else {
+            return Character.toUpperCase(first) + s.substring(1);
+        }
     }
 }
