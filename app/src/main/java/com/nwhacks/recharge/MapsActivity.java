@@ -45,6 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double longitude, latitude;
     double endLong, endLat;
     String isCurrentLoc = "Location: Default";
+    Marker m1;
 
     int PERMISSION_ID = 44;
     Location curLoc;
@@ -212,7 +213,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         String dist = "Distance: " + (int) results[0] + "m";
 
-        Marker m1 = mMap.addMarker(new MarkerOptions().position(sydney).title(isCurrentLoc));
+        m1 = mMap.addMarker(new MarkerOptions().position(sydney).title(isCurrentLoc));
         Marker m2 = mMap.addMarker(new MarkerOptions().position(sydney2).title(dist));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
 
@@ -222,7 +223,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        refresh(marker);
+        if(marker != m1) plotRoute();
         return false;
     }
 
@@ -233,5 +234,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         marker.setTitle(isCurrentLoc);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
+    }
+
+    public void plotRoute(){
+        
     }
 }
