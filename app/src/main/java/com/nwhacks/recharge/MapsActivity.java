@@ -97,8 +97,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             @Override
                             public void onComplete(@NonNull Task<Location> task) {
                                 Location location = task.getResult();
+                                requestNewLocationData();
                                 if (location == null) {
-                                    requestNewLocationData();
                                     isCurrentLoc = "Location: Default";
                                 } else {
                                     latitude = location.getLatitude();
