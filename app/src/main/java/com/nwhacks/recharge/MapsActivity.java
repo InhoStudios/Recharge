@@ -264,8 +264,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float results2[] = new float[10];
         Location.distanceBetween(latitude, longitude, lat3, lng3, results2);
 
-        String dist = "Distance: " + (int) results[0] + "m";
-        String dist2 = "Distance: " + (int) results2[0] + "m";
+        String dist = "Charger: USB Type-C\nDistance: " + (int) results[0] + "m";
+        String dist2 = "Charger: USB Type-C\nDistance: " + (int) results2[0] + "m";
 
         m1 = mMap.addMarker(new MarkerOptions().position(myPos).title(isCurrentLoc));
         mMap.addMarker(new MarkerOptions().position(ESB).title(dist));

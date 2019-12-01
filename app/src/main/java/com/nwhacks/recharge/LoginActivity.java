@@ -57,36 +57,34 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth = firebaseAuth.getInstance();
 
         progressDialog = new ProgressDialog (this);
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if(user != null) {
-            String uid = user.getUid();
-
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-            // Create a new user with a first and last name
-            Map<String, Map<String, Object>> users = new HashMap<>();
-            Map<String, Object> info = new HashMap<>();
-            info.put("lat", 100);
-            info.put("lng", 100);
-            info.put("name", "Ratana Wang");
-            users.put(uid, info);
-
-            // Add a new document with a generated ID
-            db.collection("users")
-                .add(users)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        System.out.println("DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-        }
+//        FirebaseUser user = firebaseAuth.getCurrentUser();
+//        if(user != null) {
+//            String uid = user.getUid();
+//
+//            FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//            // Create a new user with a first and last name
+//            Map<String, Object> users = new HashMap<>();
+//            users.put("lat", 100);
+//            users.put("lng", 100);
+//            users.put("name", "Ratana Wang");
+//
+//            // Add a new document with a generated ID
+//            db.collection("users/" + uid)
+//                .add(users)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        System.out.println("DocumentSnapshot added with ID: " + documentReference.getId());
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//        }
 
         // if user is already logged in
         if (firebaseAuth.getCurrentUser() != null) {
