@@ -264,7 +264,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "testid")
-//                .setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                 .setContentTitle("TESTING NOTIFICATION TITLE")
                 .setContentText("testing notification content")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
