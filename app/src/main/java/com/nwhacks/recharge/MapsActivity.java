@@ -1,22 +1,30 @@
 package com.nwhacks.recharge;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -31,7 +39,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -45,12 +52,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double longitude, latitude;
     double endLong, endLat;
     String isCurrentLoc = "Location: Default";
-    Marker m1;
 
     int PERMISSION_ID = 44;
     Location curLoc;
     FusedLocationProviderClient flpClient;
 
+    Marker m1;
+
+    private BroadcastReceiver updateLoc;
+
+    Handler handler = new Handler();
+    private Runnable periodicUpdate = new Runnable(){
+        @Override
+        public void run(){
+            handler.postDelayed(periodicUpdate, 1000 - SystemClock.elapsedRealtime()%1000);
+
+            getLastLocation();
+            LatLng sydney = new LatLng(latitude, longitude);
+            m1.setPosition(sydney);
+            m1.setTitle(isCurrentLoc);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +108,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         flpClient = LocationServices.getFusedLocationProviderClient(this);
         getLastLocation();
+        System.out.println("*************** this is the device name!!" + getDeviceName());
+
     }
 
 
@@ -218,13 +242,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
 
         mMap.setOnMarkerClickListener(this);
+        handler.post(periodicUpdate);
     }
 
 
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(marker != m1) plotRoute();
+        sendReqNoti();
         return false;
+    }
+
+    public void sendBatLowNoti() {
+
+    }
+
+    public void sendReqNoti() {
+
+        Intent intent = new Intent(this, AlertDialog.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "testid")
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                .setContentTitle("TESTING NOTIFICATION TITLE")
+                .setContentText("testing notification content")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        // notificationId is a unique int for each notification that you must define
+        int notificationId = 1;
+        notificationManager.notify(notificationId, builder.build());
+
     }
 
     public void refresh(Marker marker) {
@@ -232,11 +283,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(latitude, longitude);
         marker.setPosition(sydney);
         marker.setTitle(isCurrentLoc);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
     }
 
     public void plotRoute(){
         
+    }
+
+    public String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+
+    private String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char first = s.charAt(0);
+        if (Character.isUpperCase(first)) {
+            return s;
+        } else {
+            return Character.toUpperCase(first) + s.substring(1);
+        }
     }
 }
