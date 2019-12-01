@@ -30,7 +30,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent backIntent = new Intent(getApplicationContext(), MapsActivity.class);
-
                 startActivity(backIntent);
             }
         });
@@ -39,7 +38,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent accountSettingsIntent = new Intent(getApplicationContext(), LoginActivity.class);
-
                 startActivity(accountSettingsIntent);
             }
         });
