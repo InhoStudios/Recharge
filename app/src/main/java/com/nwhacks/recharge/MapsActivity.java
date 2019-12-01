@@ -2,6 +2,8 @@ package com.nwhacks.recharge;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -245,14 +249,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(marker != m1) plotRoute();
+        sendReqNoti();
         return false;
     }
 
-    public void sendBatLowNoti(){
+    public void sendBatLowNoti() {
 
     }
 
-    public void sendReqNoti(){
+    public void sendReqNoti() {
+
+        Intent intent = new Intent(this, AlertDialog.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "testid")
+//                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle("TESTING NOTIFICATION TITLE")
+                .setContentText("testing notification content")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        // notificationId is a unique int for each notification that you must define
+        int notificationId = 1;
+        notificationManager.notify(notificationId, builder.build());
 
     }
 
