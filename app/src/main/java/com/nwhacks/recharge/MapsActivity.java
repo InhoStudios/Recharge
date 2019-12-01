@@ -41,6 +41,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import static android.app.NotificationChannel.DEFAULT_CHANNEL_ID;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
@@ -263,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "testid")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, DEFAULT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
                 .setContentTitle("TESTING NOTIFICATION TITLE")
                 .setContentText("testing notification content")
@@ -273,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         // notificationId is a unique int for each notification that you must define
-        int notificationId = 1;
+        int notificationId = DEFAULT_CHANNEL_ID.hashCode();
         notificationManager.notify(notificationId, builder.build());
 
     }
