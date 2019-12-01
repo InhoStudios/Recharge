@@ -283,7 +283,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             plotRoute(marker);
             curMarker = marker;
         }
-        sendReqNoti();
+        Toast toast = Toast.makeText(getApplicationContext(),marker.getTitle(),Toast.LENGTH_LONG);
+        toast.show();
         System.out.println("Marker Clicked");
         return false;
     }
