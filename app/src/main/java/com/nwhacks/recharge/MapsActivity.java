@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Runnable periodicUpdate = new Runnable(){
         @Override
         public void run(){
-            handler.postDelayed(periodicUpdate, 250 - SystemClock.elapsedRealtime()%1000);
+            handler.postDelayed(periodicUpdate, 100 - SystemClock.elapsedRealtime()%1000);
 
             getLastLocation();
             LatLng sydney = new LatLng(latitude, longitude);
@@ -274,8 +274,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setOnMarkerClickListener(this);
         handler.post(periodicUpdate);
-
-        mMap.setMyLocationEnabled(true);
     }
 
 
