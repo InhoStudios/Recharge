@@ -53,17 +53,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sharingAvailab" />
 
-    <TextView
-        android:id="@+id/chargersOwnedTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="59dp"
-        android:text="Chargers Owned"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@+id/spinner"
-        app:layout_constraintHorizontal_bias="0.406"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sharingAvailab" />
 </androidx.constraintlayout.widget.ConstraintLayout>
