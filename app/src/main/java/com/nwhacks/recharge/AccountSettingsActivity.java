@@ -2,13 +2,14 @@ package com.nwhacks.recharge;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -18,6 +19,10 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private Button accountSettingsBackBtn;
     private Button logoutBtn;
     private FirebaseAuth firebaseAuth;
+
+    private Button saveBtn;
+    private TextView nameEditText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,12 @@ public class AccountSettingsActivity extends AppCompatActivity {
         firebaseAuth = firebaseAuth.getInstance();
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        saveBtn = findViewById(R.id.saveBtn);
+        nameEditText = findViewById(R.id.nameEditText);
+
+        // setting user properties to textboxes
+        //nameEditText.setText(mFirebaseAnalytics.getUserProperty("favorite_food", mFavoriteFood););
 
         // onclick listener
         accountSettingsBackBtn.setOnClickListener(new View.OnClickListener() {
@@ -55,5 +66,18 @@ public class AccountSettingsActivity extends AppCompatActivity {
                 startActivity(backIntent);
             }
         });
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get info from boxes
+                String name = nameEditText.getText().toString().trim();
+
+                Toast toast = Toast.makeText(getApplicationContext(), "Changes saved", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });
+
+
     }
 }
