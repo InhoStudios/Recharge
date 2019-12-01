@@ -1,7 +1,9 @@
 package com.nwhacks.recharge;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +15,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+
 public class AccountSettingsActivity extends AppCompatActivity {
 
     // declare stuff
@@ -22,6 +26,12 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
     private Button saveBtn;
     private TextView nameEditText;
+
+    Button chooseChargerButton;
+    TextView listChargersOwnedTextView;
+    String[] listItems;
+    boolean[] checkedItems;
+    ArrayList<Integer> mUserItems = new ArrayList<>();
 
 
     @Override
@@ -41,6 +51,12 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
         saveBtn = findViewById(R.id.saveBtn);
         nameEditText = findViewById(R.id.nameEditText);
+
+        chooseChargerButton = findViewById(R.id.chooseChargerBtn);
+        listChargersOwnedTextView = findViewById(R.id.listChargersOwnedTextView);
+
+        listItems = getResources().getStringArray(R.array.charger_type);
+        checkedItems = new boolean[listItems.length];
 
         // setting user properties to textboxes
         //nameEditText.setText(mFirebaseAnalytics.getUserProperty("favorite_food", mFavoriteFood););
@@ -75,6 +91,48 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
                 Toast toast = Toast.makeText(getApplicationContext(), "Changes saved", Toast.LENGTH_LONG);
                 toast.show();
+            }
+        });
+
+        chooseChargerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(AccountSettingsActivity.this);
+                mBuilder.setTitle("Choose you owned chargers.");
+                mBuilder.setMultiChoiceItems(listItems, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                        if(isChecked) {
+                            if(!mUserItems.contains(which)) {
+                                mUserItems.add(which);
+                            } else {
+                                mUserItems.remove(which);
+                            }
+                        }
+                    }
+                });
+
+                mBuilder.setCancelable(false);
+                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String item = "";
+                        for(int i = 0; i < mUserItems.size(); i++) {
+                            item = item + listItems[mUserItems.get(i)];
+                            if(i != mUserItems.size()-1) {
+                                item = item + ", ";
+                            }
+                        }
+                        listChargersOwnedTextView.setText(item);
+                    }
+                });
+
+                mBuilder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dialogInterface.dismiss();
+                    }
+                });
             }
         });
 
