@@ -8,8 +8,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,8 +40,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static android.app.NotificationChannel.DEFAULT_CHANNEL_ID;
 
@@ -54,6 +71,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double longitude, latitude;
     double endLong, endLat;
     String isCurrentLoc = "Location: Default";
+    Polyline polyline;
+    Marker curMarker;
 
     int PERMISSION_ID = 44;
     Location curLoc;
@@ -67,12 +86,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Runnable periodicUpdate = new Runnable(){
         @Override
         public void run(){
-            handler.postDelayed(periodicUpdate, 1000 - SystemClock.elapsedRealtime()%1000);
+            handler.postDelayed(periodicUpdate, 250 - SystemClock.elapsedRealtime()%1000);
 
             getLastLocation();
             LatLng sydney = new LatLng(latitude, longitude);
             m1.setPosition(sydney);
             m1.setTitle(isCurrentLoc);
+            if(curMarker != null && curMarker != m1) plotRoute(curMarker);
         }
     };
 
@@ -230,29 +250,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         longitude = -123.2530708;
         endLat = 49.2638279;
         endLong = -123.254772;
+        double lat3 = 49.2629248;
+        double lng3 = -123.2479948;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(latitude, longitude);
-        LatLng sydney2 = new LatLng(endLat, endLong);
+        LatLng myPos = new LatLng(latitude, longitude);
+        LatLng ESB = new LatLng(endLat, endLong);
+        LatLng LSI = new LatLng(lat3, lng3);
 
         float results[] = new float[10];
         Location.distanceBetween(latitude, longitude, endLat, endLong, results);
 
-        String dist = "Distance: " + (int) results[0] + "m";
+        float results2[] = new float[10];
+        Location.distanceBetween(latitude, longitude, lat3, lng3, results2);
 
-        m1 = mMap.addMarker(new MarkerOptions().position(sydney).title(isCurrentLoc));
-        Marker m2 = mMap.addMarker(new MarkerOptions().position(sydney2).title(dist));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
+        String dist = "Distance: " + (int) results[0] + "m";
+        String dist2 = "Distance: " + (int) results2[0] + "m";
+
+        m1 = mMap.addMarker(new MarkerOptions().position(myPos).title(isCurrentLoc));
+        mMap.addMarker(new MarkerOptions().position(ESB).title(dist));
+        mMap.addMarker(new MarkerOptions().position(LSI).title(dist2));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, zoomLvl));
 
         mMap.setOnMarkerClickListener(this);
         handler.post(periodicUpdate);
+
+        mMap.setMyLocationEnabled(true);
     }
 
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if(marker != m1) plotRoute();
+        if(marker != m1) {
+            plotRoute(marker);
+            curMarker = marker;
+        }
         sendReqNoti();
+        System.out.println("Marker Clicked");
         return false;
     }
 
@@ -281,16 +315,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void refresh(Marker marker) {
-        getLastLocation();
-        LatLng sydney = new LatLng(latitude, longitude);
-        marker.setPosition(sydney);
-        marker.setTitle(isCurrentLoc);
-
-    }
-
-    public void plotRoute(){
-        
+    public void plotRoute(Marker mTo){
+        if(polyline != null) polyline.remove();
+        polyline = mMap.addPolyline(new PolylineOptions()
+                .add(m1.getPosition(), mTo.getPosition())
+                .width(15)
+                .color(Color.YELLOW)
+        );
     }
 
     public String getDeviceName() {
