@@ -57,22 +57,22 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth = firebaseAuth.getInstance();
 
         progressDialog = new ProgressDialog (this);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if(user != null) {
+            String uid = user.getUid();
 
-        // Access a Cloud Firestore instance from your Activity
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Create a new user with a first and last name
-        Map<String, Map<String, Object>> users = new HashMap<>();
-        Map<String, Object> info = new HashMap<>();
-        info.put("lat", 100);
-        info.put("lng", 100);
-        info.put("name", "Ratana Wang");
-        users.put(uid, info);
+            // Create a new user with a first and last name
+            Map<String, Map<String, Object>> users = new HashMap<>();
+            Map<String, Object> info = new HashMap<>();
+            info.put("lat", 100);
+            info.put("lng", 100);
+            info.put("name", "Ratana Wang");
+            users.put(uid, info);
 
-        // Add a new document with a generated ID
-        db.collection("users")
+            // Add a new document with a generated ID
+            db.collection("users")
                 .add(users)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 });
-
+        }
 
         // if user is already logged in
         if (firebaseAuth.getCurrentUser() != null) {
