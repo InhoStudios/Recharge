@@ -10,7 +10,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
@@ -51,12 +53,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location curLoc;
     FusedLocationProviderClient flpClient;
 
-    Thread thread = new Thread();
     Marker m1;
 
     private BroadcastReceiver updateLoc;
 
+    Handler handler = new Handler();
+    private Runnable periodicUpdate = new Runnable(){
+        @Override
+        public void run(){
+            handler.postDelayed(periodicUpdate, 1000 - SystemClock.elapsedRealtime()%1000);
 
+            getLastLocation();
+            LatLng sydney = new LatLng(latitude, longitude);
+            m1.setPosition(sydney);
+            m1.setTitle(isCurrentLoc);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,6 +238,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, zoomLvl));
 
         mMap.setOnMarkerClickListener(this);
+        handler.post(periodicUpdate);
     }
 
 
@@ -248,7 +261,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(latitude, longitude);
         marker.setPosition(sydney);
         marker.setTitle(isCurrentLoc);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
     }
 
