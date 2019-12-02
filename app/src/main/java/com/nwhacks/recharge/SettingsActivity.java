@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 
 public class SettingsActivity extends AppCompatActivity {
 
     // buttons declaring
     private Button settingsBackBtn;
     private Button accountSettingsBtn;
+    private Switch sharingAvailability;
+    private boolean sharing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +27,14 @@ public class SettingsActivity extends AppCompatActivity {
         // create objects
         settingsBackBtn = findViewById(R.id.settingsBackBtn);
         accountSettingsBtn = findViewById(R.id.accountSettingsBtn);
+        sharingAvailability = findViewById(R.id.sharingAvailab);
 
         // button click listener
         settingsBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent backIntent = new Intent(getApplicationContext(), MapsActivity.class);
+                backIntent.putExtra("sharing", true);
                 startActivity(backIntent);
             }
         });
@@ -41,5 +46,6 @@ public class SettingsActivity extends AppCompatActivity {
                 startActivity(accountSettingsIntent);
             }
         });
+
     }
 }

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -18,8 +19,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +41,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,6 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // button declaring
     private Button usersBtn;
     private Button settingsBtn;
+    private Button focusBtn;
     float zoomLvl = 16f;
     double longitude, latitude;
     double endLong, endLat;
@@ -79,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     FusedLocationProviderClient flpClient;
 
     Marker m1;
+    boolean reset = false;
 
     private BroadcastReceiver updateLoc;
 
@@ -86,13 +94,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Runnable periodicUpdate = new Runnable(){
         @Override
         public void run(){
-            handler.postDelayed(periodicUpdate, 100 - SystemClock.elapsedRealtime()%1000);
+            handler.postDelayed(periodicUpdate, 1000 - SystemClock.elapsedRealtime()%1000);
 
             getLastLocation();
-            LatLng sydney = new LatLng(latitude, longitude);
-            m1.setPosition(sydney);
+            LatLng myPos = new LatLng(latitude, longitude);
+            m1.setPosition(myPos);
             m1.setTitle(isCurrentLoc);
             if(curMarker != null && curMarker != m1) plotRoute(curMarker);
+            if(mMap != null){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, zoomLvl));
+            }
         }
     };
 
@@ -109,6 +120,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // create objects
         usersBtn = findViewById(R.id.usersBtn);
         settingsBtn = findViewById(R.id.settingsBtn);
+        focusBtn = findViewById(R.id.centreButton);
 
         // button click listener
         usersBtn.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +129,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent usersIntent = new Intent(getApplicationContext(), UsersActivity.class);
 
                 startActivity(usersIntent);
+            }
+        });
+
+        focusBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                getLastLocation();
+                if(mMap != null) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoomLvl));
             }
         });
 
@@ -229,8 +249,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onResume();
         if (checkPermissions()) {
             getLastLocation();
+            handler.post(periodicUpdate);
         }
-
+        reset = false;
+        if(mMap != null) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoomLvl));
     }
 
 
@@ -245,6 +267,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        reset = false;
         mMap = googleMap;
         latitude = 49.2667984;
         longitude = -123.2530708;
@@ -252,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         endLong = -123.254772;
         double lat3 = 49.2629248;
         double lng3 = -123.2479948;
-
+        getLastLocation();
         // Add a marker in Sydney and move the camera
         LatLng myPos = new LatLng(latitude, longitude);
         LatLng ESB = new LatLng(endLat, endLong);
@@ -264,18 +287,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float results2[] = new float[10];
         Location.distanceBetween(latitude, longitude, lat3, lng3, results2);
 
-        String dist = "Charger: USB Type-C\nDistance: " + (int) results[0] + "m";
-        String dist2 = "Charger: USB Micro-B\nDistance: " + (int) results2[0] + "m";
+        String dist = "John Smith\nCharger: USB Type-C\nDistance: " + (int) results[0] + "m";
+        String dist2 = "Gerald Driscoll\nCharger: USB Micro-B\nDistance: " + (int) results2[0] + "m";
 
-        m1 = mMap.addMarker(new MarkerOptions().position(myPos).title(isCurrentLoc));
+        m1 = mMap.addMarker(new MarkerOptions().position(myPos).title(isCurrentLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         mMap.addMarker(new MarkerOptions().position(ESB).title(dist));
         mMap.addMarker(new MarkerOptions().position(LSI).title(dist2));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, zoomLvl));
 
         mMap.setOnMarkerClickListener(this);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setMyLocationEnabled(true);
         handler.post(periodicUpdate);
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                LinearLayout info = new LinearLayout(getApplicationContext());
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(getApplicationContext());
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(getApplicationContext());
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
     }
 
+    public void generateMarkers(){
+
+    }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
