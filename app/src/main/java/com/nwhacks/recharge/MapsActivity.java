@@ -49,7 +49,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker m1;
     boolean reset = false;
 
-    private BroadcastReceiver updateLoc;
+    FirebaseFirestore fbFs;
 
     Handler handler = new Handler();
     private Runnable periodicUpdate = new Runnable(){
@@ -153,6 +157,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getLastLocation();
         System.out.println("*************** this is the device name!!" + getDeviceName());
 
+        fbFs = FirebaseFirestore.getInstance();
+
+    }
+
+    private void sendToFirebase(FirebaseFirestore db, HashMap data, String col){
+        db.collection(col).add(data)
+            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    System.out.println("DocumentSnapshot added with ID: " + documentReference.getId());
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
 
@@ -331,7 +353,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    public void generateMarkers(){
+    private void generateMarkers(){
 
     }
 
@@ -344,6 +366,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast toast = Toast.makeText(getApplicationContext(),marker.getTitle(),Toast.LENGTH_LONG);
         toast.show();
         System.out.println("Marker Clicked");
+
+        HashMap<String, Object> key = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("sent", "yes");
+        key.put("t2", data);
+        if(fbFs != null)
+            sendToFirebase(fbFs, key, "test");
+
         return false;
     }
 
