@@ -105,9 +105,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             m1.setPosition(myPos);
             m1.setTitle(isCurrentLoc);
             if(curMarker != null && curMarker != m1) plotRoute(curMarker);
-            if(mMap != null){
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, zoomLvl));
-            }
         }
     };
 
