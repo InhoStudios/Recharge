@@ -94,6 +94,11 @@
     <string name="action_settings">Settings</string>
     <string name="backBtn">Back</string>
     <string name="users_stand_in" >t</string>
+    <string name="usersBtn">Users</string>
+    <string name="settingsBtn">Settings</string>
+    <string name="centerBtn">Center on User</string>
+    <string name="logoutBtn">Logout</string>
+    <string name="loginBtn">Login</string>
     <string-array name="charger_type">
         <item>USB C</item>
         <item>USB Micro B</item>

@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginBottom="8dp"
-        android:text="Logout"
+        android:text="@string/logoutBtn"
         app:layout_constraintBottom_toTopOf="@+id/accountSettingsBackBtn"
         app:layout_constraintStart_toStartOf="parent" />
 
